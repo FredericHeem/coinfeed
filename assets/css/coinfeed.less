@@ -1,0 +1,66 @@
+body {
+  padding-top: 60px;
+  padding-bottom: 40px;
+}
+
+.sidebar-nav {
+  padding: 10px 10px;
+}
+
+@media (max-width: 980px) {
+/* Enable use of floated navbar text */
+.navbar-text.pull-right {
+  float: none;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+}
+
+#feed
+{
+  display: none;
+
+  input
+  {
+    cursor: copy;
+  }
+
+  .all input {
+    width: 100%;
+  }
+}
+.sidebar {
+  ul, li
+  {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  label
+  {
+    padding: 3px 15px;
+    cursor: pointer;
+  }
+  label:hover
+  {
+    background-color: #F1F1F1;
+  }
+  select
+  {
+    width: inherit;
+  }
+}
+.boards
+{
+  li input
+  {
+  }
+  .square
+  {
+    display: inline-block;
+    border: solid 1px gray;
+    width: 11px;
+    height: 11px;
+    margin-right: 4px;
+  }
+}

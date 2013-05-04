@@ -1,0 +1,23 @@
+!= js('connected')
+
+.navbar.navbar-inverse.navbar-fixed-top
+  .navbar-inner
+    .container
+      a.btn.btn-navbar(data-toggle="collapse",data-target=".nav-collapse")
+        span.icon-bar
+        span.icon-bar
+        span.icon-bar
+      a.brand(href='#home') Coin Feed
+      .nav-collapse.collapse
+        ul.nav
+          li.active
+            a(href='#/') Feed
+        ul.pull-right.nav
+          li.dropdown#me
+            a.dropdown-toggle(data-toggle="dropdown", href="#")
+              span.name
+              span.caret
+            ul.dropdown-menu
+              li
+                a.quit(href='#') Deauthorize 
+   

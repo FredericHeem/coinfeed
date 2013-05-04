@@ -1,0 +1,20 @@
+{
+"url": "http://localhost:3000",
+"coinfeed": {
+  "token": {
+    "name": "Coin Feed",
+    "expiration": "never",
+    "scope": "read,write"
+  },
+  "key": "",
+  "secret": ""
+},
+"analytics": {
+    "ga": ""
+},
+"redis": {
+    "host": "",
+    "port": "",
+    "pass": ""
+}
+}
