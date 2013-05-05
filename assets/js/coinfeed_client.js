@@ -10,6 +10,73 @@ var App = {
     router: {}
 };
 
+App.model.TicketMtGox = Backbone.Model.extend({
+    urlRoot: 'https://data.mtgox.com/api/2/BTCUSD/money/ticker',
+    defaults: {
+        bid:'Fetching',
+        ask:'Fetching'
+    },
+    parse: function(response) {
+        console.log("TickerMtGoxModel parse ");
+        // parse can be invoked for fetch and save, in case of save it can be undefined so check before using 
+        if (response) {
+            console.log("result " + response.result);
+            if (response.data) {
+                return {bid: response.data.buy.display};           
+            } 
+        }
+    },    
+    
+});
+    
+/**
+ * TickerMtGox view
+ */
+App.view.TickerMtGox = Backbone.View.extend({
+
+    tagName:"div",
+    className:"tickerMtGox",
+    
+    initialize: function() {
+        console.log("TickerMtGoxView init ");
+        this.template = _.template($("#tickerTemplate").html()),
+        this.model.on('change', this.render, this); 
+        this.model.fetch({
+          success: function() {
+            // fetch successfully completed
+            //console.log("fetched !" + this.toJSON());
+          },
+          error: function() {
+              console.log('Failed to fetch!');
+          }
+        });
+        
+        $('<img src="img/spinner.gif" class="spinner"/>').appendTo(this.$el);
+    },
+    render:function () {
+            console.log("TickerMtGoxView render ");
+            console.log(this.model);
+            $(this.el).html(this.template({bid: this.model.attributes.bid}));
+            return this;
+        }
+});
+
+/**
+ * Ticker view
+ */
+App.view.Tickers = Backbone.View.extend({
+    events: {
+    },
+
+    initialize: function() {
+        console.log("Tickers init ");
+    },
+    
+    render: function() {
+        console.log("Tickers render ");
+        return this;
+    }   
+});
 /**
  * Feed view
  */
@@ -129,18 +196,31 @@ App.view.Feed = Backbone.View.extend({
 
 App.router.CoinFeedRouter = Backbone.Router.extend({
     routes: {
-        ""      : "feed",
+        ""      : "tickers",
         "/feed" : "feed"
     },
 
     initialize: function(options) {
         
-        this.feed = new App.view.Feed({
-            el: $('#feed').get(0),
+        this.ticketMtGoxModel = new App.model.TicketMtGox();
+
+        this.tickerMtGoxView = new App.view.TickerMtGox({
+            model: this.ticketMtGoxModel,
+            el: $('#tickerMtGox').get(0),
+        }).render();
+                
+        this.tickers = new App.view.Tickers({
+            el: $('#tickers').get(0),
         }).render();
         
+        //this.feed = new App.view.Feed({
+        //    el: $('#feed').get(0),
+        //}).render();
+        
     },
-
+    ticker: function() {
+        this._showPane('ticker');
+    },
     feed: function() {
         this._showPane('feed');
     },
@@ -149,7 +229,7 @@ App.router.CoinFeedRouter = Backbone.Router.extend({
         $('#switch .active').removeClass('active');
         $('#switch .'+pane).addClass('active');
         $('#'+ pane).show();
-        _(['calendar', 'feed']).chain().without(pane).each(function(pane) {
+        _(['ticker', 'feed']).chain().without(pane).each(function(pane) {
             $('#'+ pane).hide();
         });
         this[pane].trigger('show');

@@ -15,7 +15,16 @@
             a(href='#/feed') Feed
         ul.pull-right.nav
  
-.container-fluid    
-    
-    .span9.content
-      #marketChart
+.container#ads  
+  .p 
+  
+.container#tickers  
+  #tickerMtGox
+      
+.container#marketView  
+  #marketChart
+
+script#tickerTemplate(type="text/template")
+  ul
+    li bid <%= bid %>
+    li ask
