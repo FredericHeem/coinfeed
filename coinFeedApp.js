@@ -34,14 +34,10 @@ function coinFeddApp(config) {
         res.send("error", 500);
     }
     
-    app.get('/calendar/:uuid/board/:board/:name.ics', function(req, res) {
-        function error(e) {
-            sendError(res);
-        }
 
-        app.emit('calendar');
-    });
 
+
+    
     return app
 }
 
