@@ -18,11 +18,13 @@ App.model.TicketMtGox = Backbone.Model.extend({
     },
     parse: function(response) {
         console.log("TickerMtGoxModel parse ");
-        // parse can be invoked for fetch and save, in case of save it can be undefined so check before using 
         if (response) {
             console.log("result " + response.result);
             if (response.data) {
-                return {bid: response.data.buy.display};           
+                return { 
+                  name: "MtGox", 
+                  bid: response.data.buy.display,
+                  ask: response.data.sell.display};           
             } 
         }
     },    
@@ -56,7 +58,9 @@ App.view.TickerMtGox = Backbone.View.extend({
     render:function () {
             console.log("TickerMtGoxView render ");
             console.log(this.model);
-            $(this.el).html(this.template({bid: this.model.attributes.bid}));
+            $(this.el).html(this.template({
+              model: this.model.toJSON() 
+            }));
             return this;
         }
 });

@@ -25,6 +25,7 @@
   #marketChart
 
 script#tickerTemplate(type="text/template")
+  span <%= model.name %>
   ul
-    li bid <%= bid %>
-    li ask
+    li bid <%= model.bid %>
+    li ask <%= model.ask %>
