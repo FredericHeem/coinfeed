@@ -18,14 +18,24 @@
 .container#ads  
   .p 
   
-.container#tickers  
-  #tickerMtGox
+.container#tickers 
+
+  table.table.table-hover
+    caption Bitcoin Markets
+    thead
+      tr
+        th Market
+        th Bid
+        th Ask
+    tbody
+      tr#tickerMtGox
+      tr#tickerBitStamp
+      tr#tickerBtce
       
 .container#marketView  
   #marketChart
 
 script#tickerTemplate(type="text/template")
-  span <%= model.name %>
-  ul
-    li bid <%= model.bid %>
-    li ask <%= model.ask %>
+  td <%= model.name %>
+  td <%= model.bid %>
+  td <%= model.ask %>

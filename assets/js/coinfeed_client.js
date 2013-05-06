@@ -10,7 +10,7 @@ var App = {
     router: {}
 };
 
-App.model.TicketMtGox = Backbone.Model.extend({
+App.model.TickerMtGox = Backbone.Model.extend({
     urlRoot: 'https://data.mtgox.com/api/2/BTCUSD/money/ticker',
     defaults: {
         bid:'Fetching',
@@ -27,10 +27,51 @@ App.model.TicketMtGox = Backbone.Model.extend({
                   ask: response.data.sell.display};           
             } 
         }
-    },    
-    
+    }   
 });
+
+App.model.TickerBtce = Backbone.Model.extend({
+    url: 'https://btc-e.com/api/2/',
+    //url: 'https://btc-e.com/api/2/btc_usd/ticker',
+    defaults: {
+        bid:'Fetching',
+        ask:'Fetching'
+    },
     
+    parse: function(response) {
+        console.log("TickerBtce parse ");
+        if (response) {
+            console.log("bid " + response.result.bid);
+            
+            return { 
+              name: "Btc-e", 
+              bid: response.ticker.buy,
+              ask: response.ticket.sell};           
+             
+        }
+    }   
+}); 
+
+App.model.TickerBitstamp = Backbone.Model.extend({
+    urlRoot: 'https://www.bitstamp.net/api/ticker/',
+    defaults: {
+        bid:'Fetching',
+        ask:'Fetching'
+    },
+   
+    parse: function(response) {
+        console.log("TickerBitstamp parse ");
+        if (response) {
+            console.log("bid " + response.result.bid);
+            
+            return { 
+              name: "BitStamp", 
+              bid: response.bid,
+              ask: response.ask};           
+             
+        }
+    }   
+});    
 /**
  * TickerMtGox view
  */
@@ -206,13 +247,29 @@ App.router.CoinFeedRouter = Backbone.Router.extend({
 
     initialize: function(options) {
         
-        this.ticketMtGoxModel = new App.model.TicketMtGox();
-
+        this.tickerMtGoxModel = new App.model.TickerMtGox();
+        
+        
         this.tickerMtGoxView = new App.view.TickerMtGox({
-            model: this.ticketMtGoxModel,
+            model: this.tickerMtGoxModel,
             el: $('#tickerMtGox').get(0),
         }).render();
-                
+        
+        this.tickerBitstampModel = new App.model.TickerBitstamp();
+        /*  
+        this.tickerBitStampView = new App.view.TickerMtGox({
+            model: this.tickerBitstampModel,
+            el: $('#tickerBitStamp').get(0),
+        }).render();
+          */    
+        this.tickerBtceModel = new App.model.TickerBtce();
+          
+        this.tickerBtceView = new App.view.TickerMtGox({
+            model: this.tickerBtceModel,
+            el: $('#tickerBtce').get(0),
+        }).render();
+              
+                    
         this.tickers = new App.view.Tickers({
             el: $('#tickers').get(0),
         }).render();

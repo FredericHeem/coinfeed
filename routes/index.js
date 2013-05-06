@@ -5,6 +5,8 @@ module.exports = function(app, config) {
     
     app.get('/', function(req, res) {
         console.log("index " + config)
+        res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+        res.header("Access-Control-Allow-Headers", "X-Requested-With");
         res.render('index_logged', {
                 logged: true,
                 //uuid: req.session.uuid,
