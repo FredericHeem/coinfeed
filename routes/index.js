@@ -1,22 +1,22 @@
 /*
  * GET home page.
  */
-module.exports = function(app, config) {
-    
-    app.get('/', function(req, res) {
-        console.log("index " + config)
+module.exports = function (app, config) {
+
+    app.get('/', function (req, res) {
+        //console.log("index ")
         res.header("Access-Control-Allow-Origin", "http://localhost:3000");
         res.header("Access-Control-Allow-Headers", "X-Requested-With");
         res.render('index_logged', {
-                logged: true,
-                //uuid: req.session.uuid,
-                config: config
+            logged: true,
+            //uuid: req.session.uuid,
+            config: config
         });
     });
-   
-    app.get('/mtgox/btc/usd', function(req, res) {
+
+    app.get('/mtgox/btc/usd', function (req, res) {
         app.emit('mtgox/btc/usd');
-        
+
         var ohlc = [
   ['06/15/2009 16:00:00', 136.01, 139.5, 134.53, 139.48],
   ['06/08/2009 16:00:00', 143.82, 144.56, 136.04, 136.97],
@@ -48,7 +48,7 @@ module.exports = function(app, config) {
   ['12/08/2008 16:00:00', 97.28, 103.6, 92.53, 98.27],
   ['12/01/2008 16:00:00', 91.3, 96.23, 86.5, 94],
   ['11/24/2008 16:00:00', 85.21, 95.25, 84.84, 92.67],
-  ['11/17/2008 16:00:00', 88.48, 91.58, 79.14, 82.58],    
+  ['11/17/2008 16:00:00', 88.48, 91.58, 79.14, 82.58],
   ['11/10/2008 16:00:00', 100.17, 100.4, 86.02, 90.24],
   ['11/03/2008 16:00:00', 105.93, 111.79, 95.72, 98.24],
   ['10/27/2008 16:00:00', 95.07, 112.19, 91.86, 107.59],
@@ -61,6 +61,5 @@ module.exports = function(app, config) {
 ];
         res.json(ohlc);
     });
-    
-    console.log(app.routes)
+
 }

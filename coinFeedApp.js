@@ -4,9 +4,62 @@ function coinFeddApp(config) {
         http = require('http'),
         path = require('path');
 
+    var mongo = require('mongodb');
+
+    var Server = mongo.Server,
+    Db = mongo.Db,
+    BSON = mongo.BSONPure;
+
+    var server = new Server('ds059947.mongolab.com', 59947, { auto_reconnect: true });
+    db = new Db('bitcointickers-dev', server, { safe: true });
+
+    db.open(function (err, db) {
+        if (db) {
+            console.log("authenticating to db");
+            db.authenticate("coinfeed", "coinfeed1234", function (err2, data2) {
+                if (data2) {
+                    console.log("Database opened");
+                    var collection = db.collection('Bitstamp-BTC-USD');
+                    collection.count(function (err, count) {
+                        console.log("count " + count)
+                    })
+
+                    collection.find({}, {}, { limit: 1 }, function (err, cursor) {
+                        if (err) {
+                            console.log("cannot find from db");
+                        } else {
+                            cursor.each(function (errCursor, item) {
+                                if (errCursor) {
+                                    console.log("error in cursor each " + errCursor);
+                                } else {
+
+                                    console.log("got " + item);
+                                    if (item) {
+                                        console.log("time  " + item.date);
+                                        console.log("bid   " + item.bid);
+                                        console.log("ask   " + item.ask);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+                else {
+                    console.log("db error: " + err2);
+                }
+            });
+        }
+        else {
+            console.log(err);
+        }
+
+    });
+
+   
+
     var app = express.createServer();
-        
-    app.configure(function() {
+
+    app.configure(function () {
         app.set('port', process.env.PORT || 3000);
         app.set('views', __dirname + '/views');
         app.set('view engine', 'jade');
@@ -16,28 +69,56 @@ function coinFeddApp(config) {
         app.use(express.methodOverride());
         app.use(app.router);
         app.use(express.static(path.join(__dirname, 'public')));
-        app.use(require('connect-assets')({src: __dirname +'/assets'}));
+        app.use(require('connect-assets')({ src: __dirname + '/assets' }));
     });
 
     require('./routes/index')(app, config);
-    
-    app.configure('development', function() {
+
+    app.get('/tickers/bitstamp/btc/usd', function (req, res) {
+        app.emit('/tickers/bitstamp/btc/usd');
+        //response = { bid: "100", ask: "110" }
+
+        var collection = db.collection('Bitstamp-BTC-USD');
+
+        collection.find({}, {}, { limit: 1 }, function (err, cursor) {
+            if (err) {
+                console.log("cannot find from db");
+            } else {
+                cursor.each(function (errCursor, item) {
+                    if (errCursor) {
+                        console.log("error in cursor each " + errCursor);
+                    } else {
+
+                        console.log("got " + item);
+                        if (item) {
+                            console.log("time  " + item.date);
+                            console.log("bid   " + item.bid);
+                            console.log("ask   " + item.ask);
+                        }
+                        res.json(item)
+                    }
+                });
+            }
+        });
+    });
+
+    app.configure('development', function () {
         app.use(express.errorHandler());
     });
 
-    app.param('uuid', function(req, res, next, uuid) {
+    app.param('uuid', function (req, res, next, uuid) {
     });
-    
-    
+
+
     function sendError(res) {
         app.emit('error');
         res.send("error", 500);
     }
-    
 
 
 
-    
+
+
     return app
 }
 

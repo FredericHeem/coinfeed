@@ -52,17 +52,21 @@ App.model.TickerBtce = Backbone.Model.extend({
     }   
 }); 
 
+/*
+ * Bitstamp model
+ */
 App.model.TickerBitstamp = Backbone.Model.extend({
-    urlRoot: 'https://www.bitstamp.net/api/ticker/',
+    url: '/tickers/bitstamp/btc/usd',
     defaults: {
+        name: "BitStamp",
         bid:'Fetching',
         ask:'Fetching'
     },
    
     parse: function(response) {
-        console.log("TickerBitstamp parse ");
+        console.log("TickerBitstamp parse " + response);
         if (response) {
-            console.log("bid " + response.result.bid);
+            console.log("bid " + response.bid);
             
             return { 
               name: "BitStamp", 
@@ -207,7 +211,7 @@ App.view.Feed = Backbone.View.extend({
         
         min: "09-01-2008 16:00",
         max: "06-22-2009 16:00",
-        tickInterval: "6 weeks",
+        tickInterval: "6 weeks"
       },
       y2axis: {
         tickOptions:{formatString:'$%d'}
@@ -248,30 +252,28 @@ App.router.CoinFeedRouter = Backbone.Router.extend({
     initialize: function(options) {
         
         this.tickerMtGoxModel = new App.model.TickerMtGox();
-        
-        
         this.tickerMtGoxView = new App.view.TickerMtGox({
             model: this.tickerMtGoxModel,
-            el: $('#tickerMtGox').get(0),
+            el: $('#tickerMtGox').get(0)
         }).render();
         
         this.tickerBitstampModel = new App.model.TickerBitstamp();
-        /*  
         this.tickerBitStampView = new App.view.TickerMtGox({
             model: this.tickerBitstampModel,
-            el: $('#tickerBitStamp').get(0),
+            el: $('#tickerBitStamp').get(0)
         }).render();
-          */    
+         
+         /* 
         this.tickerBtceModel = new App.model.TickerBtce();
           
         this.tickerBtceView = new App.view.TickerMtGox({
             model: this.tickerBtceModel,
-            el: $('#tickerBtce').get(0),
+            el: $('#tickerBtce').get(0)
         }).render();
               
-                    
+               */     
         this.tickers = new App.view.Tickers({
-            el: $('#tickers').get(0),
+            el: $('#tickers').get(0)
         }).render();
         
         //this.feed = new App.view.Feed({
