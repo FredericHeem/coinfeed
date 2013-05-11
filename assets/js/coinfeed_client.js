@@ -10,53 +10,33 @@ var App = {
     router: {}
 };
 
-App.model.TickerMtGox = Backbone.Model.extend({
-    urlRoot: 'https://data.mtgox.com/api/2/BTCUSD/money/ticker',
-    defaults: {
-        bid:'Fetching',
-        ask:'Fetching'
-    },
-    parse: function(response) {
-        console.log("TickerMtGoxModel parse ");
-        if (response) {
-            console.log("result " + response.result);
-            if (response.data) {
-                return { 
-                  name: "MtGox", 
-                  bid: response.data.buy.display,
-                  ask: response.data.sell.display};           
-            } 
-        }
-    }   
-});
+//App.model.TickerMtGox = Backbone.Model.extend({
+//    urlRoot: 'https://data.mtgox.com/api/2/BTCUSD/money/ticker',
+//    defaults: {
+//        bid:'Fetching',
+//        ask:'Fetching'
+//    },
+//    parse: function(response) {
+//        console.log("TickerMtGoxModel parse ");
+//        if (response) {
+//            console.log("result " + response.result);
+//            if (response.data) {
+//                return { 
+//                  name: "MtGox", 
+//                  bid: response.data.buy.display,
+//                  ask: response.data.sell.display};           
+//            } 
+//        }
+//    }   
+//});
 
-App.model.TickerBtce = Backbone.Model.extend({
-    url: 'https://btc-e.com/api/2/',
-    //url: 'https://btc-e.com/api/2/btc_usd/ticker',
-    defaults: {
-        bid:'Fetching',
-        ask:'Fetching'
-    },
-    
-    parse: function(response) {
-        console.log("TickerBtce parse ");
-        if (response) {
-            console.log("bid " + response.result.bid);
-            
-            return { 
-              name: "Btc-e", 
-              bid: response.ticker.buy,
-              ask: response.ticket.sell};           
-             
-        }
-    }   
-}); 
+
 
 /*
- * Bitstamp model
+ * Ticker model
  */
-App.model.TickerBitstamp = Backbone.Model.extend({
-    url: '/tickers/bitstamp/btc/usd',
+App.model.Ticker = Backbone.Model.extend({
+    url: "tickers/bitstamp/btc/usd",
     defaults: {
         name: "BitStamp",
         bid:'Fetching',
@@ -69,7 +49,6 @@ App.model.TickerBitstamp = Backbone.Model.extend({
             console.log("bid " + response.bid);
             
             return { 
-              name: "BitStamp", 
               bid: response.bid,
               ask: response.ask};           
              
@@ -245,55 +224,57 @@ App.view.Feed = Backbone.View.extend({
 
 App.router.CoinFeedRouter = Backbone.Router.extend({
     routes: {
-        ""      : "tickers",
-        "/feed" : "feed"
+        "": "tickers",
+        "/feed": "feed"
     },
 
-    initialize: function(options) {
-        
-        this.tickerMtGoxModel = new App.model.TickerMtGox();
+    initialize: function (options) {
+
+        this.tickerMtGoxModel = new App.model.Ticker({ name: "MtGox" });
+        this.tickerMtGoxModel.url = "/tickers/MtGox-BTC-USD"
         this.tickerMtGoxView = new App.view.TickerMtGox({
             model: this.tickerMtGoxModel,
             el: $('#tickerMtGox').get(0)
         }).render();
-        
-        this.tickerBitstampModel = new App.model.TickerBitstamp();
+
+        this.tickerBitstampModel = new App.model.Ticker({ url: "/tickers/bitstamp/btc/usd" });
+        this.tickerBitstampModel.url = "/tickers/Bitstamp-BTC-USD"
         this.tickerBitStampView = new App.view.TickerMtGox({
             model: this.tickerBitstampModel,
             el: $('#tickerBitStamp').get(0)
         }).render();
-         
-         /* 
+
+        /* 
         this.tickerBtceModel = new App.model.TickerBtce();
           
         this.tickerBtceView = new App.view.TickerMtGox({
-            model: this.tickerBtceModel,
-            el: $('#tickerBtce').get(0)
+        model: this.tickerBtceModel,
+        el: $('#tickerBtce').get(0)
         }).render();
               
-               */     
+        */
         this.tickers = new App.view.Tickers({
             el: $('#tickers').get(0)
         }).render();
-        
+
         //this.feed = new App.view.Feed({
         //    el: $('#feed').get(0),
         //}).render();
-        
+
     },
-    ticker: function() {
+    ticker: function () {
         this._showPane('ticker');
     },
-    feed: function() {
+    feed: function () {
         this._showPane('feed');
     },
 
-    _showPane: function(pane) {
+    _showPane: function (pane) {
         $('#switch .active').removeClass('active');
-        $('#switch .'+pane).addClass('active');
-        $('#'+ pane).show();
-        _(['ticker', 'feed']).chain().without(pane).each(function(pane) {
-            $('#'+ pane).hide();
+        $('#switch .' + pane).addClass('active');
+        $('#' + pane).show();
+        _(['ticker', 'feed']).chain().without(pane).each(function (pane) {
+            $('#' + pane).hide();
         });
         this[pane].trigger('show');
     }

@@ -74,11 +74,18 @@ function coinFeddApp(config) {
 
     require('./routes/index')(app, config);
 
-    app.get('/tickers/bitstamp/btc/usd', function (req, res) {
-        app.emit('/tickers/bitstamp/btc/usd');
-        //response = { bid: "100", ask: "110" }
 
-        var collection = db.collection('Bitstamp-BTC-USD');
+//    app.param('ticker', function (req, res, next, ticker) {
+//        console.log("ticker param " + ticker)
+//    });
+
+    app.param('ticker');
+
+    app.get('/tickers/:ticker', function (req, res) {
+        console.log("get ticker " + req.params.ticker)
+        app.emit('/tickers/bitstamp/btc/usd');
+
+        var collection = db.collection(req.params.ticker);
 
         collection.find({}, {}, { limit: 1 }, function (err, cursor) {
             if (err) {
@@ -94,8 +101,9 @@ function coinFeddApp(config) {
                             console.log("time  " + item.date);
                             console.log("bid   " + item.bid);
                             console.log("ask   " + item.ask);
+                            res.json(item)
                         }
-                        res.json(item)
+                        
                     }
                 });
             }
@@ -106,8 +114,6 @@ function coinFeddApp(config) {
         app.use(express.errorHandler());
     });
 
-    app.param('uuid', function (req, res, next, uuid) {
-    });
 
 
     function sendError(res) {
