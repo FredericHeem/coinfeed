@@ -24,23 +24,14 @@ function coinFeddApp(config) {
                         console.log("count " + count)
                     })
 
-                    collection.find({}, {}, { limit: 1 }, function (err, cursor) {
+                    var cursor = collection.find();
+                    cursor.sort({ _id: -1 }).limit(1)
+                    cursor.nextObject(function (err, doc) {
                         if (err) {
                             console.log("cannot find from db");
                         } else {
-                            cursor.each(function (errCursor, item) {
-                                if (errCursor) {
-                                    console.log("error in cursor each " + errCursor);
-                                } else {
-
-                                    console.log("got " + item);
-                                    if (item) {
-                                        console.log("time  " + item.date);
-                                        console.log("bid   " + item.bid);
-                                        console.log("ask   " + item.ask);
-                                    }
-                                }
-                            });
+                            console.log("got doc " + doc);
+                            console.log("time  " + doc.date);
                         }
                     });
                 }
@@ -87,25 +78,15 @@ function coinFeddApp(config) {
 
         var collection = db.collection(req.params.ticker);
 
-        collection.find({}, {}, { limit: 1 }, function (err, cursor) {
+        var cursor = collection.find();
+        cursor.sort({ _id: -1 }).limit(1)
+        cursor.nextObject(function (err, doc) {
             if (err) {
                 console.log("cannot find from db");
             } else {
-                cursor.each(function (errCursor, item) {
-                    if (errCursor) {
-                        console.log("error in cursor each " + errCursor);
-                    } else {
-
-                        console.log("got " + item);
-                        if (item) {
-                            console.log("time  " + item.date);
-                            console.log("bid   " + item.bid);
-                            console.log("ask   " + item.ask);
-                            res.json(item)
-                        }
-                        
-                    }
-                });
+                console.log("got doc " + doc);
+                console.log("time  " + doc.date);
+                res.json(doc)
             }
         });
     });
@@ -114,16 +95,10 @@ function coinFeddApp(config) {
         app.use(express.errorHandler());
     });
 
-
-
     function sendError(res) {
         app.emit('error');
         res.send("error", 500);
     }
-
-
-
-
 
     return app
 }
