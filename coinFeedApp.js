@@ -1,52 +1,11 @@
-function coinFeddApp(config) {
+function coinFeedApp(config) {
 
     var express = require('express'),
         http = require('http'),
         path = require('path');
 
-    var mongo = require('mongodb');
-
-    var Server = mongo.Server,
-    Db = mongo.Db,
-    BSON = mongo.BSONPure;
-
-    var server = new Server('ds059947.mongolab.com', 59947, { auto_reconnect: true });
-    db = new Db('bitcointickers-dev', server, { safe: true });
-
-    db.open(function (err, db) {
-        if (db) {
-            console.log("authenticating to db");
-            db.authenticate("coinfeed", "coinfeed1234", function (err2, data2) {
-                if (data2) {
-                    console.log("Database opened");
-                    var collection = db.collection('Bitstamp-BTC-USD');
-                    collection.count(function (err, count) {
-                        console.log("count " + count)
-                    })
-
-                    var cursor = collection.find();
-                    cursor.sort({ _id: -1 }).limit(1)
-                    cursor.nextObject(function (err, doc) {
-                        if (err) {
-                            console.log("cannot find from db");
-                        } else {
-                            console.log("got doc " + doc);
-                            console.log("time  " + doc.date);
-                        }
-                    });
-                }
-                else {
-                    console.log("db error: " + err2);
-                }
-            });
-        }
-        else {
-            console.log(err);
-        }
-
-    });
-
-   
+    var dal = require("./dal.js")
+    dal.authenticate(config.store)
 
     var app = express.createServer();
 
@@ -65,30 +24,11 @@ function coinFeddApp(config) {
 
     require('./routes/index')(app, config);
 
-
-//    app.param('ticker', function (req, res, next, ticker) {
-//        console.log("ticker param " + ticker)
-//    });
-
     app.param('ticker');
 
     app.get('/tickers/:ticker', function (req, res) {
-        console.log("get ticker " + req.params.ticker)
-        app.emit('/tickers/bitstamp/btc/usd');
-
-        var collection = db.collection(req.params.ticker);
-
-        var cursor = collection.find();
-        cursor.sort({ _id: -1 }).limit(1)
-        cursor.nextObject(function (err, doc) {
-            if (err) {
-                console.log("cannot find from db");
-            } else {
-                console.log("got doc " + doc);
-                console.log("time  " + doc.date);
-                res.json(doc)
-            }
-        });
+        console.log("/tickers/:ticker " + req.params.ticker)
+        dal.getLastTicker(req.params.ticker, function (ticker) { res.json(ticker) })
     });
 
     app.configure('development', function () {
@@ -103,4 +43,4 @@ function coinFeddApp(config) {
     return app
 }
 
-module.exports = coinFeddApp;
+module.exports = coinFeedApp;

@@ -16,5 +16,12 @@
     "host": "",
     "port": "",
     "pass": ""
+},
+"store": {
+    "hostname": "ds061797.mongolab.com",
+    "port": 61797,
+	"username": "coinfeed",
+    "password": "coinfeed1234",
+	"dbName": "bitcointickers"
 }
 }
