@@ -30,6 +30,7 @@
   #marketChart
 
 script#tickerTemplate(type="text/template")
-  td <%= model.displayName %>
-  td <%= model.symbol %> <%= model.bid %>
-  td <%= model.symbol %> <%= model.ask %>
+  td 
+    img(src!='img/<%= model.icon %>', width="64", height="64")
+  td.number <%= model.symbol %> <%= model.bid %>
+  td.number <%= model.symbol %> <%= model.ask %>
