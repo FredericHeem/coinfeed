@@ -1,7 +1,6 @@
 /*jslint nomen: true, plusplus: true, undef: true, todo: true, white: true,
-  browser: true */
+browser: true */
 /*global Backbone: false, _: false, $: false */
-
 
 var App = {
     model: {},
@@ -10,131 +9,122 @@ var App = {
     router: {}
 };
 
-//App.model.TickerMtGox = Backbone.Model.extend({
-//    urlRoot: 'https://data.mtgox.com/api/2/BTCUSD/money/ticker',
-//    defaults: {
-//        bid:'Fetching',
-//        ask:'Fetching'
-//    },
-//    parse: function(response) {
-//        console.log("TickerMtGoxModel parse ");
-//        if (response) {
-//            console.log("result " + response.result);
-//            if (response.data) {
-//                return { 
-//                  name: "MtGox", 
-//                  bid: response.data.buy.display,
-//                  ask: response.data.sell.display};           
-//            } 
-//        }
-//    }   
-//});
-
-
+/*
+* Ticker model
+*/
+App.model.Ticker = Backbone.Model.extend({
+    url: function () {
+        return '/tickers/' + this.get("marketName") + '-' + this.get("currencyPair");
+    },
+    defaults: {
+        displayName: "",
+        marketName: "",
+        currencyPair: 'BTC-USD',
+        symbol: "$",
+        bid: 'Fetching',
+        ask: 'Fetching'
+    },
+    parse: function (response) {
+        //console.log("TickerMtGoxModel parse bid " + response.bid);
+        response.bid = accounting.toFixed(response.bid, 2)
+        response.ask = accounting.toFixed(response.ask, 2)
+        return response
+    }
+});
 
 /*
- * Ticker model
- */
-App.model.Ticker = Backbone.Model.extend({
-    url: "tickers/bitstamp/btc/usd",
-    defaults: {
-        name: "BitStamp",
-        bid:'Fetching',
-        ask:'Fetching'
-    },
-   
-    parse: function(response) {
-        console.log("TickerBitstamp parse " + response);
-        if (response) {
-            console.log("bid " + response.bid);
-            
-            return { 
-              bid: response.bid,
-              ask: response.ask};           
-             
-        }
-    }   
-});    
-/**
- * TickerMtGox view
- */
-App.view.TickerMtGox = Backbone.View.extend({
-
-    tagName:"div",
-    className:"tickerMtGox",
-    
-    initialize: function() {
-        console.log("TickerMtGoxView init ");
-        this.template = _.template($("#tickerTemplate").html()),
-        this.model.on('change', this.render, this); 
-        this.model.fetch({
-          success: function() {
-            // fetch successfully completed
-            //console.log("fetched !" + this.toJSON());
-          },
-          error: function() {
-              console.log('Failed to fetch!');
-          }
-        });
-        
-        $('<img src="img/spinner.gif" class="spinner"/>').appendTo(this.$el);
-    },
-    render:function () {
-            console.log("TickerMtGoxView render ");
-            console.log(this.model);
-            $(this.el).html(this.template({
-              model: this.model.toJSON() 
-            }));
-            return this;
-        }
+* Ticker collection
+*/
+App.collection.Ticker = Backbone.Collection.extend({
+    model: App.model.Ticker
 });
 
 /**
- * Ticker view
- */
-App.view.Tickers = Backbone.View.extend({
+* Ticker view
+*/
+App.view.Ticker = Backbone.View.extend({
+    tagName: 'tr',
     events: {
     },
 
-    initialize: function() {
-        console.log("Tickers init ");
+    initialize: function () {
+        console.log("TickerView init ");
+        this.template = _.template($("#tickerTemplate").html()),
+        this.model.on('change', this.render, this);
+        this.model.fetch({
+            success: function () {
+                console.log("fetched");
+            },
+            error: function () {
+                console.error('Failed to fetch!');
+            }
+        });
+
+        $('<img src="img/spinner.gif" class="spinner"/>').appendTo(this.$el);
     },
-    
-    render: function() {
+
+    render: function () {
         console.log("Tickers render ");
+        $(this.el).html(this.template({
+            model: this.model.toJSON()
+        }));
+
         return this;
-    }   
+    }
 });
+
+App.view.TickerTable = Backbone.View.extend({
+    tagName: 'table',
+
+    initialize: function () {
+        console.log("Table init")
+        _.bindAll(this, 'render', 'renderOne');
+    },
+    render: function () {
+        console.log("Table render")
+        var table = $("#TickerTable tbody");
+        table.empty();
+        this.collection.each(this.renderOne);
+        return this;
+    },
+    renderOne: function (model) {
+        console.log("Table renderOne")
+        var tickerView = new App.view.Ticker({ model: model });
+        this.$el.append(tickerView.render().$el);
+        return this;
+    }
+});
+
 /**
- * Feed view
- */
+* Feed view
+*/
 App.view.Feed = Backbone.View.extend({
     events: {
     },
 
-    initialize: function() {
-    
-    var ajaxDataRenderer = function(url, plot, options) {
-      console.log("ajaxDataRenderer " + url);
-      var ret = null;
-      $.ajax({
-        // have to use synchronous here, else the function 
-        // will return before the data is fetched
-        async: false,
-        url: url,
-        dataType:"json",
-        success: function(data) {
-        console.log("ajaxDataRenderer success " + data);
-        ret = [data];
-      }
-      });
-      return ret;
-    };
-  
-    // The url for our json data
-    var jsonurl = "mtgox/btc/usd";
-  
-  var ohlc = [
+    initialize: function () {
+
+        var ajaxDataRenderer = function (url, plot, options) {
+            console.log("ajaxDataRenderer " + url);
+            var ret = null;
+            $.ajax({
+                // have to use synchronous here, else the function 
+                // will return before the data is fetched
+                async: false,
+                url: url,
+                dataType: "json",
+                success: function (data) {
+                    console.log("ajaxDataRenderer success " + data);
+                    ret = [data];
+                }
+            });
+            return ret;
+        };
+
+        // The url for our json data
+        var jsonurl = "mtgox/btc/usd";
+
+        var ohlc = [
   ['06/15/2009 16:00:00', 136.01, 139.5, 134.53, 139.48],
   ['06/08/2009 16:00:00', 143.82, 144.56, 136.04, 136.97],
   ['06/01/2009 16:00:00', 136.47, 146.4, 136, 144.67],
@@ -165,7 +155,7 @@ App.view.Feed = Backbone.View.extend({
   ['12/08/2008 16:00:00', 97.28, 103.6, 92.53, 98.27],
   ['12/01/2008 16:00:00', 91.3, 96.23, 86.5, 94],
   ['11/24/2008 16:00:00', 85.21, 95.25, 84.84, 92.67],
-  ['11/17/2008 16:00:00', 88.48, 91.58, 79.14, 82.58],    
+  ['11/17/2008 16:00:00', 88.48, 91.58, 79.14, 82.58],
   ['11/10/2008 16:00:00', 100.17, 100.4, 86.02, 90.24],
   ['11/03/2008 16:00:00', 105.93, 111.79, 95.72, 98.24],
   ['10/27/2008 16:00:00', 95.07, 112.19, 91.86, 107.59],
@@ -177,49 +167,50 @@ App.view.Feed = Backbone.View.extend({
   ['09/15/2008 16:00:00', 142.03, 147.69, 120.68, 140.91]
 ];
 
-    var plot1 = $.jqplot('marketChart',jsonurl,{
-    dataRenderer: ajaxDataRenderer,
-    dataRendererOptions: {
-      unusedOptionalUrl: "mtgox/btc/usd"
-    },
-    seriesDefaults:{yaxis:'y2axis'},
-    axes: {
-      xaxis: {
-        renderer:$.jqplot.DateAxisRenderer,
-        tickOptions:{formatString:'%b %e'}, 
-        
-        min: "09-01-2008 16:00",
-        max: "06-22-2009 16:00",
-        tickInterval: "6 weeks"
-      },
-      y2axis: {
-        tickOptions:{formatString:'$%d'}
-      }
-    },
-    series: [{renderer:$.jqplot.OHLCRenderer,
-              rendererOptions:{ candleStick:true }}],
-    highlighter: {
-      show: true,
-      showMarker:false,
-      tooltipAxes: 'xy',
-      yvalues: 4,
-      // You can customize the tooltip format string of the highlighter
-      // to include any arbitrary text or html and use format string
-      // placeholders (%s here) to represent x and y values.
-      formatString:'<table class="jqplot-highlighter"> \
+        var plot1 = $.jqplot('marketChart', jsonurl, {
+            dataRenderer: ajaxDataRenderer,
+            dataRendererOptions: {
+                unusedOptionalUrl: "mtgox/btc/usd"
+            },
+            seriesDefaults: { yaxis: 'y2axis' },
+            axes: {
+                xaxis: {
+                    renderer: $.jqplot.DateAxisRenderer,
+                    tickOptions: { formatString: '%b %e' },
+
+                    min: "09-01-2008 16:00",
+                    max: "06-22-2009 16:00",
+                    tickInterval: "6 weeks"
+                },
+                y2axis: {
+                    tickOptions: { formatString: '$%d' }
+                }
+            },
+            series: [{ renderer: $.jqplot.OHLCRenderer,
+                rendererOptions: { candleStick: true }
+            }],
+            highlighter: {
+                show: true,
+                showMarker: false,
+                tooltipAxes: 'xy',
+                yvalues: 4,
+                // You can customize the tooltip format string of the highlighter
+                // to include any arbitrary text or html and use format string
+                // placeholders (%s here) to represent x and y values.
+                formatString: '<table class="jqplot-highlighter"> \
       <tr><td>date:</td><td>%s</td></tr> \
       <tr><td>open:</td><td>%s</td></tr> \
       <tr><td>hi:</td><td>%s</td></tr> \
       <tr><td>low:</td><td>%s</td></tr> \
       <tr><td>close:</td><td>%s</td></tr></table>'
-    }
-  });        
+            }
+        });
     },
 
-    render: function() {
-       
+    render: function () {
+
         return this;
-    }   
+    }
 });
 
 App.router.CoinFeedRouter = Backbone.Router.extend({
@@ -230,37 +221,13 @@ App.router.CoinFeedRouter = Backbone.Router.extend({
 
     initialize: function (options) {
 
-        this.tickerMtGoxModel = new App.model.Ticker({ name: "MtGox" });
-        this.tickerMtGoxModel.url = "/tickers/MtGox-BTC-USD"
-        this.tickerMtGoxView = new App.view.TickerMtGox({
-            model: this.tickerMtGoxModel,
-            el: $('#tickerMtGox').get(0)
-        }).render();
+        this.tickerMtGoxModel = new App.model.Ticker({ marketName: "MtGox", displayName: "MtGox" });
+        this.tickerBitstampModel = new App.model.Ticker({ marketName: "Bitstamp", displayName: "Bitstamp" });
 
-        this.tickerBitstampModel = new App.model.Ticker({ url: "/tickers/bitstamp/btc/usd" });
-        this.tickerBitstampModel.url = "/tickers/Bitstamp-BTC-USD"
-        this.tickerBitStampView = new App.view.TickerMtGox({
-            model: this.tickerBitstampModel,
-            el: $('#tickerBitStamp').get(0)
-        }).render();
+        this.tickerCollection = new App.collection.Ticker([this.tickerMtGoxModel, this.tickerBitstampModel])
 
-        /* 
-        this.tickerBtceModel = new App.model.TickerBtce();
-          
-        this.tickerBtceView = new App.view.TickerMtGox({
-        model: this.tickerBtceModel,
-        el: $('#tickerBtce').get(0)
-        }).render();
-              
-        */
-        this.tickers = new App.view.Tickers({
-            el: $('#tickers').get(0)
-        }).render();
-
-        //this.feed = new App.view.Feed({
-        //    el: $('#feed').get(0),
-        //}).render();
-
+        this.ticketTableView = new App.view.TickerTable({ collection: this.tickerCollection, el: $("#TickerTable") });
+        this.ticketTableView.render()
     },
     ticker: function () {
         this._showPane('ticker');
@@ -279,11 +246,11 @@ App.router.CoinFeedRouter = Backbone.Router.extend({
         this[pane].trigger('show');
     }
 });
-(function() {
-        $(document).ready(function() {
-            new App.router.CoinFeedRouter({});
-            Backbone.history.start();
-        });
+(function () {
+    $(document).ready(function () {
+        new App.router.CoinFeedRouter({});
+        Backbone.history.start();
+    });
 })();
 
         

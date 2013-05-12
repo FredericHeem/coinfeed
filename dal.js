@@ -33,15 +33,17 @@ var authenticate = function (config) {
 
 };
 
-var getLastTicker = function(ticker, callback) {
-    console.log("getLastTicker: " + ticker)
-    var collection = db.collection(ticker);
+var getLastTicker = function(marketName, callback) {
+    console.log("getLastTicker: " + marketName)
+    var collection = db.collection(marketName);
 
     var cursor = collection.find();
     cursor.sort({ _id: -1 }).limit(1)
     cursor.nextObject(function (err, doc) {
         if (err) {
-            console.error("cannot find " + ticker  + " last ticker from db");
+            console.error("cannot find " + marketName + " last ticker from db");
+        } else if(doc == undefined){
+            console.error("null document from db");
         } else {
             console.log("time  " + doc.date, ", bid " + doc.bid);
             callback(doc)

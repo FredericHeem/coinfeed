@@ -20,7 +20,7 @@
   
 .container#tickers 
 
-  table.table.table-hover
+  table.table.table-hover#TickerTable
     caption Bitcoin Markets
     thead
       tr
@@ -28,14 +28,11 @@
         th Bid
         th Ask
     tbody
-      tr#tickerMtGox
-      tr#tickerBitStamp
-      tr#tickerBtce
       
 .container#marketView  
   #marketChart
 
 script#tickerTemplate(type="text/template")
-  td <%= model.name %>
-  td <%= model.bid %>
-  td <%= model.ask %>
+  td <%= model.displayName %>
+  td <%= model.symbol %> <%= model.bid %>
+  td <%= model.symbol %> <%= model.ask %>

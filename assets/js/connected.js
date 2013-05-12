@@ -9,5 +9,6 @@
 //= require vendor/jqplot.ohlcRenderer.min
 //= require vendor/jqplot.highlighter.min
 //= require vendor/jqplot.json2.min
+//= require vendor/accounting.min
 //= require coinfeed_client.js
 
