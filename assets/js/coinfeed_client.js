@@ -19,7 +19,7 @@ App.model.Ticker = Backbone.Model.extend({
     defaults: {
         displayName: "",
         marketName: "",
-        icon:"MtGox.png",
+        icon:"",
         currencyPair: 'BTC-USD',
         symbol: "$",
         bid: 'Fetching',
@@ -224,8 +224,9 @@ App.router.CoinFeedRouter = Backbone.Router.extend({
 
         this.tickerMtGoxModel = new App.model.Ticker({ marketName: "MtGox", displayName: "MtGox", icon: "MtGox.png" });
         this.tickerBitstampModel = new App.model.Ticker({ marketName: "Bitstamp", displayName: "Bitstamp", icon:"Bitstamp.png" });
+        this.tickerBtceModel = new App.model.Ticker({ marketName: "Btce", displayName: "Btce", icon: "Btce.png" });
 
-        this.tickerCollection = new App.collection.Ticker([this.tickerMtGoxModel, this.tickerBitstampModel])
+        this.tickerCollection = new App.collection.Ticker([this.tickerMtGoxModel, this.tickerBitstampModel, this.tickerBtceModel])
 
         this.ticketTableView = new App.view.TickerTable({ collection: this.tickerCollection, el: $("#TickerTable") });
         this.ticketTableView.render()
