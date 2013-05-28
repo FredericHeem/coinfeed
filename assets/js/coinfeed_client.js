@@ -22,8 +22,8 @@ App.model.Ticker = Backbone.Model.extend({
         icon:"",
         currencyPair: 'BTC-USD',
         symbol: "$",
-        bid: 'Fetching',
-        ask: 'Fetching'
+        bid: '',
+        ask: ''
     },
     parse: function (response) {
         //console.log("TickerMtGoxModel parse bid " + response.bid);
@@ -66,10 +66,25 @@ App.view.Ticker = Backbone.View.extend({
 
     render: function () {
         console.log("Tickers render ");
-        $(this.el).html(this.template({
-            model: this.model.toJSON()
-        }));
+        $(this.el).empty()
+        var model = this.model.toJSON()
+        if (model.icon != "") {
+            $(this.el).append("<td><img src='img/" + model.icon + "' width='64' height='32'></td>")
+        } else {
+            $(this.el).append("<td><span class='marketName'>" + model.displayName + "</span></td>")
+        }
 
+        if (model.bid == "") {
+            $(this.el).append("<td><img src='img/spinner.gif' class='spinner'/></td>")
+        } else {
+             $(this.el).append("<td class='number'>" + model.symbol + " " + model.bid + "</td>")
+        }
+
+         if (model.ask == "") {
+             $(this.el).append("<td><img src='img/spinner.gif' class='spinner'/></td>")
+         } else {
+             $(this.el).append("<td class='number'>" + model.symbol + " " + model.ask + "</td>")
+         }
         return this;
     }
 });
@@ -225,8 +240,10 @@ App.router.CoinFeedRouter = Backbone.Router.extend({
         this.tickerMtGoxModel = new App.model.Ticker({ marketName: "MtGox", displayName: "MtGox", icon: "MtGox.png" });
         this.tickerBitstampModel = new App.model.Ticker({ marketName: "Bitstamp", displayName: "Bitstamp", icon:"Bitstamp.png" });
         this.tickerBtceModel = new App.model.Ticker({ marketName: "Btce", displayName: "Btce", icon: "Btce.png" });
+        this.tickerBitfinexModel = new App.model.Ticker({ marketName: "Bitfinex", displayName: "Bitfinex" });
 
-        this.tickerCollection = new App.collection.Ticker([this.tickerMtGoxModel, this.tickerBitstampModel, this.tickerBtceModel])
+        this.tickerCollection = new App.collection.Ticker(
+        [this.tickerMtGoxModel, this.tickerBitstampModel, this.tickerBtceModel, this.tickerBitfinexModel])
 
         this.ticketTableView = new App.view.TickerTable({ collection: this.tickerCollection, el: $("#TickerTable") });
         this.ticketTableView.render()
