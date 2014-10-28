@@ -153,18 +153,19 @@ App.router.CoinFeedRouter = Backbone.Router.extend({
 
     initialize: function (options) {
 
-        this.tickerMtGoxModel = new App.model.Ticker({ marketName: "MtGox", displayName: "MtGox", icon: "MtGox.png" });
+        this.tickerAirbexModel = new App.model.Ticker({ marketName: "Airbex", displayName: "Airbex", icon: "Airbex.png" });
         this.tickerBitstampModel = new App.model.Ticker({ marketName: "Bitstamp", displayName: "Bitstamp", icon:"Bitstamp.png" });
         this.tickerBtceModel = new App.model.Ticker({ marketName: "Btce", displayName: "Btce", icon: "Btce.png" });
         this.tickerBitfinexModel = new App.model.Ticker({ marketName: "Bitfinex", displayName: "Bitfinex", icon: "Bitfinex.jpg" });
-        this.tickerJustcoinModel = new App.model.Ticker({ marketName: "Justcoin", displayName: "Justcoin", icon: "justcoin.svg" });
+        
 
         this.tickerCollection = new App.collection.Ticker(
-                [this.tickerMtGoxModel, 
+                [
+                 this.tickerAirbexModel,
                  this.tickerBitstampModel, 
                  this.tickerBtceModel, 
-                 this.tickerBitfinexModel,
-                 this.tickerJustcoinModel])
+                 this.tickerBitfinexModel
+                 ])
 
         this.ticketTableView = new App.view.TickerTable({ collection: this.tickerCollection, el: $("#TickerTable") });
         this.ticketTableView.render()
